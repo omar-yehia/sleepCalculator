@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Time Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <h1>Sleep Time Calculator</h1>
+        <div class="mb-3">
+            <label for="wh" class="form-label">Waking Hour:</label>
+            <input type="time" class="form-control" id="wh">
+        </div>
+        <div class="mb-3">
+            <label for="ssh" class="form-label">Suggested Sleeping Hour:</label>
+            <input type="time" class="form-control" id="ssh">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="calculateWakingHour()">Calculate</button>
+        <div class="mt-3">
+            <p>Hours waking<span id="awakeHours">aaa</span></p>
+            <p>Hours of sleep<span id="hoursOfSleep">aaa</span></p>
+            <p>Predicted Waking Hour Next Day: <span id="pwh"></span></p>
+        </div>
+    </div>
+
+    <script>
+      var sleepingRatio=2.35; //  20/8.5=2.35
+        function toClockTime(decimalTime, ampm = false) {
+            var hours = Math.floor(decimalTime);
+            var minutes = (decimalTime - hours) * 60;
+
+            if (ampm) {
+                var amPM = hours >= 12 ? 'PM' : 'AM';
+                var formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+                var formattedTime = `${formattedHours}:${minutes < 10 ? '0' : ''}${Math.floor(minutes)} ${amPM}`;
+                return formattedTime;
+            } else {
+                var formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${Math.floor(minutes)}`;
+                return formattedTime;
+            }
+        }
+
+        function calculateWakingHour() {
+            var whInput = $('#wh').val().split(":");
+            var wh = parseFloat(whInput[0]) + parseFloat(whInput[1]) / 60;
+            
+            var sshInput = $('#ssh').val().split(":");
+            var ssh = parseFloat(sshInput[0]) + parseFloat(sshInput[1]) / 60;
+
+            // Calculate hours of being awake
+            var awakeHours = ssh - wh;
+            if(awakeHours<0){awakeHours+=24;}
+
+            // Update the format based on the user's preference
+            var awakeHoursFormat = toClockTime(awakeHours);
+            $('#awakeHours').text(awakeHoursFormat);
+
+            // Calculate predicted waking hour next day
+            var hoursOfSleep = awakeHours / sleepingRatio;
+
+            // Update the format based on the user's preference
+            var hoursOfSleepFormat = toClockTime(hoursOfSleep);
+            $('#hoursOfSleep').text(hoursOfSleepFormat);
+
+            let pwh = (ssh + hoursOfSleep).toFixed(2);
+
+            // Ensure pwh is in the 24-hour format
+            if (pwh >= 24) {
+                pwh -= 24;
+            }
+
+            // Update the format based on the user's preference
+            var pwhFormat = toClockTime(pwh, true);
+            $('#pwh').text(pwhFormat);
+        }
+    </script>
+
+</body>
+
+</html>
